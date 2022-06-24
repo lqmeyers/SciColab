@@ -9,7 +9,7 @@ a scientific colaboration finding platform
 
 Why: 
 
-Although there are various individual search platforms for finding people (linked-in), papers (google scholar) and topics, there is nothing that is extremely user friendly and set 
+Although there are various individual search platforms for finding people (linked-in), papers (google scholar) and topics, there is nothing that is extremely user friendly and set up to find collaboration based on shared traits 
 
 Who:
 
