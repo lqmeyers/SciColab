@@ -1,0 +1,104 @@
+### first attempt at scraping for Hackathon 
+#Luke Meyers 6:04 6/24
+
+from distutils.filelist import findall
+import matplotlib as mpl
+from matplotlib.pyplot import table
+#import 
+from requests import *
+import sys 
+
+sys.path.insert(0,r"C:\Anaconda3\pkgs\beautifulsoup4-4.11.1-py39haa95532_0\Lib\site-packages\bs4")
+
+from bs4 import *
+import selenium as sl
+
+search = get("https://scholar.google.com/scholar?&q=jose+agosto&hl=en&as_sdt=0,5")
+
+
+#search.json()
+#print(search.content)
+
+soup= BeautifulSoup(search.content,'html.parser')
+#print(soup.prettify())
+
+table = soup.find('div',attrs={'id':'gs_res_ccl_mid'})
+results = [] 
+
+
+def titleParse(dump):
+    '''parses the title from the output of a html dump'''
+    dumpStr = str(dump)
+    titles = []
+    for i in range(len(dumpStr)):
+        if dumpStr[i] == '<':
+            if dumpStr[i+1] == '/':
+                if dumpStr[i+2] == 'a':
+                    status = False
+                    ix = i-1 
+                    title = ''
+                    while status == False:
+                        title = title + dumpStr[ix]
+                        ix = ix-1 
+                        if dumpStr[ix] == '>':
+                            status = True 
+                    titles.append(reverseStr(title))
+    return titles 
+    
+def reverseStr(strIn):
+    '''returns a string backwards'''
+    out = ''
+    for char in strIn:
+        out = char + out 
+    return out 
+
+def cleanHTML(strIn):
+    '''gets rid of anything in <>'''
+    strOut = ''
+    strIn = str(strIn)
+    perm = True
+    for i in range(len(strIn)):
+        if strIn[i] == '<':
+            perm = False
+        if strIn[i-1] == '>':
+            perm = True 
+        if perm == True: 
+            strOut = strOut + strIn[i]
+    return strOut
+        
+
+def getDump(results,type='title'):
+    tDump = []
+    aDump = []
+    for row in results.findAll('div',attrs={'class':'gs_r gs_or gs_scl'}):
+        authorDump = row.findAll('div',attrs={'class':'gs_a'})
+        aDump.append(authorDump)
+        titleDump = row.findAll('div',attrs={'class':'gs_ri'})
+        for dump in titleDump:
+            title = dump.findAll('h3',attrs={'class':'gs_rt'})
+            if type == 'title':
+                print(titleParse(title))
+    if type != 'title':
+        for a in aDump:
+            print(cleanHTML(a))
+
+
+    #for a in authors:
+        #clean = a.findAll('a')
+        #print(clean)
+   #content.append(authors)
+    #print(authors)
+    #print(titles)
+    #print(type(titles))
+   #print(bleh)
+
+getDump(table,'author')
+
+
+
+
+#@print(content)
+print('ran')
+
+
+
