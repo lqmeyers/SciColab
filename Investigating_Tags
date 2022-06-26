@@ -65,7 +65,32 @@ def cleanHTML(strIn):
         if perm == True: 
             strOut = strOut + strIn[i]
     return strOut
+
+def listAuthors(aIn):
+    '''receives how the authors were listed on google scholars and
+    returns them as a list'''
+    listOut = [] 
+    proc = str(aIn)
+    stops = [',','.','-']
+    for i in range(len(proc)):
+        if proc[i] in stops :
+            nameComp = False
+            name = ''
+            tckr = i-1
+            while nameComp == False:
+                name = proc[tckr]+name
+                tckr = tckr-1
+                if proc[tckr] in stops or tckr < 0:
+                    nameComp = True
+            listOut.append(name)
+    #now I need to get rid of the items that are not names
+
+   
+   
+    return listOut 
         
+
+                
 
 def getDump(results,type='title'):
     tDump = []
@@ -80,7 +105,9 @@ def getDump(results,type='title'):
                 print(titleParse(title))
     if type != 'title':
         for a in aDump:
-            print(cleanHTML(a))
+            print(listAuthors(cleanHTML(a)))
+            #print(str(cleanHTML(a)))
+
 
 
     #for a in authors:
