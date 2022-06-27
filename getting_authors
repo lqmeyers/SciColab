@@ -12,6 +12,8 @@ sys.path.insert(0,r"C:\Anaconda3\pkgs\beautifulsoup4-4.11.1-py39haa95532_0\Lib\s
 
 from bs4 import *
 import selenium as sl
+import csv
+
 
 person = 'KM+Hultgren'
 
@@ -115,8 +117,6 @@ def listAuthors(aIn):
     return listOut  
 
 
-
-
 def getDump(results,type='title'):
     tDump = []
     aDump1 = []
@@ -153,9 +153,18 @@ def getUniqName(listIn):
 
 authors = getDump(table,'author')
 
-print(getUniqName(authors))
+read = getUniqName(authors)
 
+print(read)
 
+def authors2csv(filename,aList,a):
+    with open(filename,'w') as csvfile:
+        fileW = csv.writer(csvfile,delimiter= ',',
+                        quotechar='|',quoting=csv.QUOTE_MINIMAL)
+        for n in aList:
+            fileW.writerow([n,a])
+
+authors2csv('authors.csv',read,'KM Hultgren')
 
 #@print(content)
 print('ran')
