@@ -13,7 +13,9 @@ sys.path.insert(0,r"C:\Anaconda3\pkgs\beautifulsoup4-4.11.1-py39haa95532_0\Lib\s
 from bs4 import *
 import selenium as sl
 
-search = get("https://scholar.google.com/scholar?&q=jose+agosto&hl=en&as_sdt=0,5")
+person = 'KM+Hultgren'
+
+search = get("https://scholar.google.com/scholar?&q="+person+"&hl=en&as_sdt=0,5")
 
 
 #search.json()
@@ -56,71 +58,102 @@ def cleanHTML(strIn):
     '''gets rid of anything in <>'''
     strOut = ''
     strIn = str(strIn)
+    #print(strIn)
     perm = True
     for i in range(len(strIn)):
         if strIn[i] == '<':
             perm = False
-        if strIn[i-1] == '>':
-            perm = True 
+        elif strIn[i-1] == '>':
+            if strIn[i-2] != '<' or '>':
+                perm = True 
         if perm == True: 
             strOut = strOut + strIn[i]
     return strOut
+
+def cleanList(listIn):
+    '''does cleanHTML but to a list'''
+    listOut = []
+    for i in listIn:
+        listOut.append(cleanHTML(i))
+    return listOut
+
+def countSpaces(strIn):
+    '''returns the num of spaces in a str'''
+    count = 0 
+    for c in strIn:
+        if c == ' ':
+            count = count +1
+    return count 
+
 
 def listAuthors(aIn):
     '''receives how the authors were listed on google scholars and
     returns them as a list'''
     listOut = [] 
     proc = str(aIn)
-    stops = [',','.','-']
+    stops = [',','.','-','\u2026'] #unicode char for ellipsis
     for i in range(len(proc)):
         if proc[i] in stops :
             nameComp = False
             name = ''
             tckr = i-1
             while nameComp == False:
-                name = proc[tckr]+name
+                if proc[tckr] != '[':
+                    name = proc[tckr]+name
                 tckr = tckr-1
-                if proc[tckr] in stops or tckr < 0:
+                if proc[tckr] in stops:
                     nameComp = True
-            listOut.append(name)
-    #now I need to get rid of the items that are not names
+                elif tckr < 0:
+                    name = ' '+name
+                    nameComp = True 
+            #if u'\xao' in name:
+                #name = name[:-3]
+            name = name.replace(u'\xa0',' ')
+            if countSpaces(name[0:4]) >= 2:
+                listOut.append(name)
+    #now I need to get rid of the items that are not names  
+    return listOut  
 
-   
-   
-    return listOut 
-        
 
-                
+
 
 def getDump(results,type='title'):
     tDump = []
-    aDump = []
+    aDump1 = []
+    aFinal = [] 
     for row in results.findAll('div',attrs={'class':'gs_r gs_or gs_scl'}):
         authorDump = row.findAll('div',attrs={'class':'gs_a'})
-        aDump.append(authorDump)
+        aDump1.append(authorDump)
         titleDump = row.findAll('div',attrs={'class':'gs_ri'})
         for dump in titleDump:
             title = dump.findAll('h3',attrs={'class':'gs_rt'})
-            if type == 'title':
-                print(titleParse(title))
-    if type != 'title':
-        for a in aDump:
-            print(listAuthors(cleanHTML(a)))
+            tDump.append(titleParse(title))
+    if type == 'title':
+        return tDump
+    elif type == 'author':
+        for a in aDump1:
             #print(str(cleanHTML(a)))
+            aFinal.append((listAuthors(cleanHTML(a))))
+            #print(cleanHTML(a))
+        return aFinal 
+
+def getUniqName(listIn):
+    '''returns a list of all unique names in Dump'''
+    listOut = []
+    for i in listIn:
+        if type(i)== list:
+            for n in i: 
+                if n in listOut:
+                    placeholder =0
+                else:
+                    listOut.append(n)
+    return listOut 
 
 
 
-    #for a in authors:
-        #clean = a.findAll('a')
-        #print(clean)
-   #content.append(authors)
-    #print(authors)
-    #print(titles)
-    #print(type(titles))
-   #print(bleh)
+authors = getDump(table,'author')
 
-getDump(table,'author')
-
+print(getUniqName(authors))
 
 
 
